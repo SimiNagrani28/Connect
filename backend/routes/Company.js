@@ -9,9 +9,9 @@ router.route('/').get((req, res) => {
 
 router.route('/add').post((req, res) => {
   const Name = req.body.Name;
-  const Date_time = req.body.Date_time;
-  const RegDateStart = req.body.RegDateStart;
-  const RegDateEnd = req.body.RegDateEnd;
+  const Date_time = Date.parse(req.body.Date_time);
+  const RegDateStart = Date.parse(req.body.RegDateStart);
+  const RegDateEnd = Date.parse(req.body.RegDateEnd);
   const OfferType = req.body.OfferType;
   const Category = req.body.Category;
   const OpenFor = req.body.OpenFor;
@@ -57,8 +57,7 @@ router.route('/update/:id').post((req, res) => {
 		Company.Category = req.body.Category;
 		Company.OpenFor = req.body.OpenFor;
 		Company.Locations = req.body.Locations;
-      
-		
+    	
 			
 		Company.save()
 		.then(() => res.json('Company updated!'))

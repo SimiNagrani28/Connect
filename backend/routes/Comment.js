@@ -3,11 +3,11 @@ let Event = require('../models/Event.model');
 let Comment = require('../models/Comment.model');
 let User = require('../models/User.model');
 
-
+//id of the event
 router.route('/add/:id').post((req, res) => {
   const Description = req.body.Description;
   const Event = req.params.id;
-    var query = User.findOne({Username: String(req.body.Username)},{'_id':1});
+    var query = User.findOne({UserName: String(req.body.UserName)},{'_id':1});
 	
   query.exec(function(err,user){
 	  if(err)
@@ -47,8 +47,8 @@ router.route('/update/:id').post((req, res) => {
   Comment.findById(req.params.id)
     .then(Comment => {		
 		Comment.Description = req.body.Description;
-		Comment.Event = Comment,Event;
-		Comment.User = Comment.User;
+		//Comment.Event = Comment.Event;
+		//Comment.User = Comment.User;
       
 		
 			Comment.save()
