@@ -10,7 +10,7 @@ router.route('/').get((req, res) => {
 
 router.route('/register').post((req, res) => {
   const UserName = req.body.UserName;
-  const Password = Bcrypt.hashSync(req.body.password, 10);
+  const Password = bcrypt.hashSync(String(req.body.Password), 10);
   const Email_ID = req.body.Email_ID;
   const FirstName = req.body.FirstName;
   const LastName = req.body.LastName;
@@ -38,12 +38,12 @@ router.route('/register').post((req, res) => {
 });
 
 router.route('/login').post((req,res) => {
-	User.findOne({Username: req.body.UserName})
+	User.findOne({UserName: req.body.UserName})
 	.then(user => {
-		if(!user){
+		if(user==null){
 			return res.status(400).json('Username does not exist');
 		}
-		if(!bcrypt.compareSync(req.body.password, user.password)){
+		if(!bcrypt.compareSync(req.body.Password, user.Password)){
 			return res.status(400).json('Message: The password is invalid');
 		}
 		res.json('Login Succesful');
@@ -67,7 +67,7 @@ router.route('/update/:id').post((req, res) => {
     .then(User => {
 		
 		User.UserName = req.body.UserName;
-		//User.Password = Bcrypt.hashSync(req.body.password, 10);
+		//User.Password = Bcrypt.hashSync(req.body.Password, 10);
 		User.Email_ID = req.body.Email_ID;
 		User.FirstName = req.body.FirstName;
 		User.LastName = req.body.LastName;
@@ -88,10 +88,10 @@ router.route('/update/:id').post((req, res) => {
 router.route('/changepassword/:id').post((req, res) => {
   User.findById(req.params.id)
     .then(User => {
-		if(!bcrypt.compareSync(req.body.password, user.password)){
+		if(!bcrypt.compareSync(req.body.OldPassword, User.Password)){
 			return res.status(400).json('Message: The password is invalid');
 		}
-		User.Password = Bcrypt.hashSync(req.body.password, 10);
+		User.Password = bcrypt.hashSync(req.body.NewPassword, 10);
 		 	  
       User.save()
         .then(() => res.json('User updated!'))
