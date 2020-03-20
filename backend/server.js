@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 require('dotenv').config();
 
@@ -20,9 +21,23 @@ connection.once('open', () => {
 
 const eventRouter = require('./routes/Event');
 const ClubComRouter = require('./routes/ClubCom');
+const ComplaintRouter = require('./routes/Complaint');
+const CompanyRouter = require('./routes/Company');
+const CProfileRouter = require('./routes/CProfile');
+const NewsRouter = require('./routes/News');
+const CommentRouter = require('./routes/Comment');
+const UserRouter = require('./routes/User');
+
 
 app.use('/Event', eventRouter);
 app.use('/ClubCom', ClubComRouter);
+app.use('/Complaint',ComplaintRouter);
+app.use('/Company',CompanyRouter);
+app.use('/CProfile',CProfileRouter);
+app.use('/News',NewsRouter);
+app.use('/Comment',CommentRouter);
+app.use('/User',UserRouter);
+
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);

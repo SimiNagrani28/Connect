@@ -1,99 +1,101 @@
 const router = require('express').Router();
-let Event = require('../models/Event.model');
-let ClubCom = require('../models/ClubCom.model');
+const bcrypt = require('bcryptjs');
+let User = require('../models/User.model');
 
 router.route('/').get((req, res) => {
-  Event.find({Approved:true})
-    .then(Event => res.json(Event))
+  User.find()
+    .then(User => res.json(User))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
+router.route('/register').post((req, res) => {
+  const UserName = req.body.UserName;
+  const Password = Bcrypt.hashSync(req.body.password, 10);
+  const Email_ID = req.body.Email_ID;
+  const FirstName = req.body.FirstName;
+  const LastName = req.body.LastName;
+  const Gender = req.body.Gender;
+  const Age = req.body.Age;
+  const Address = req.body.Address;
+  const Clg_ID = req.body.Clg_ID;
+	
+  const newUser = new User({
+	  UserName,
+	  Password,
+	  Email_ID,
+	  FirstName,
+	  LastName,
+	  Gender,
+	  Age,
+	  Address, 
+      Clg_ID,  
+	});
 
-router.route('/Pending').get((req, res) => {
-  Event.find({Approved:false})
-    .then(Event => res.json(Event))
+  newUser.save()
+    .then(() => res.json('User added!'))
     .catch(err => res.status(400).json('Error: ' + err));
-});
-
-router.route('/add').post((req, res) => {
-  const Name = req.body.Name;
-  let Organizer;
-  ClubCom.findOne({'Name': String(req.body.Organizer)},{'_id':1},function(err,clubcom){
-	    console.log('%s',clubcom._id);
-		Organizer = clubcom._id;
-  });
-  const Contact = req.body.Contact;
-  const Date_time = req.body.Date_time;
-  const Venue = req.body.Venue;
-  const Duration = req.body.Duration;
-  const Description = req.body.Description;
-  const NoOfAttendees = req.body.NoOfAttendees;
-  const Approved = req.body.Approved;
-  
-    var query = ClubCom.findOne({Name: String(req.body.Organizer)},{'_id':1});
-  query.exec(function(err,clubcom){
-	  if(err)
-		  return console.log(err);
 		
-	Organizer=clubcom._id;
-  
-  
-  const newEvent = new Event({
-	  Name,  
-	  Organizer,
-	  Contact, 
-      Date_time, 
-	  Venue, 
-	  Duration, 
-      Description, 
-	  NoOfAttendees,
-	  Approved,	  
-	});
-
-  newEvent.save()
-    .then(() => res.json('Event added!'))
-    .catch(err => res.status(400).json('Error: ' + err));
-	
-	});
-	
 });
 
-
+router.route('/login').post((req,res) => {
+	User.findOne({Username: req.body.UserName})
+	.then(user => {
+		if(!user){
+			return res.status(400).json('Username does not exist');
+		}
+		if(!bcrypt.compareSync(req.body.password, user.password)){
+			return res.status(400).json('Message: The password is invalid');
+		}
+		res.json('Login Succesful');
+	})
+	.catch(err => res.status(400).json('Error: ' + err));
+});
 
 router.route('/:id').get((req, res) => {
-  Event.findById(req.params.id)
-    .then(Event => res.json(Event))
+  User.findById(req.params.id)
+    .then(User => res.json(User))
+    .catch(err => res.status(400).json('Error: ' + err));
+});
+router.route('/:id').delete((req, res) => {
+  User.findByIdAndDelete(req.params.id)
+    .then(() => res.json('User deleted.'))
     .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.route('/:id').delete((req, res) => {
-  Event.findByIdAndDelete(req.params.id)
-    .then(() => res.json('Event deleted.'))
+router.route('/update/:id').post((req, res) => {
+  User.findById(req.params.id)
+    .then(User => {
+		
+		User.UserName = req.body.UserName;
+		//User.Password = Bcrypt.hashSync(req.body.password, 10);
+		User.Email_ID = req.body.Email_ID;
+		User.FirstName = req.body.FirstName;
+		User.LastName = req.body.LastName;
+		User.Gender = req.body.Gender;
+		User.Age = req.body.Age;
+		User.Address = req.body.Address;
+		User.Clg_ID = req.body.Clg_ID;  
+	  
+      User.save()
+        .then(() => res.json('User updated!'))
+        .catch(err => res.status(400).json('Error: ' + err));
+    })
     .catch(err => res.status(400).json('Error: ' + err));
 });
-router.route('/update/:id').post((req, res) => {
-  Event.findById(req.params.id)
-    .then(Event => {
-		Event.Name = req.body.Name;	
-		Event.Contact = Number(req.body.Contact);
-		Event.Date_time = Date.parse(req.body.Data_time);
-		Event.Venue = req.body.Venue;
-		Event.Duration = Number(req.body.Duration);
-		Event.Description = req.body.Description;
-		Event.NoOfAttendees = Number(req.body.NoOfAttendees);
-		Event.Approved = false;
-      
-		var query = ClubCom.findOne({Name: String(req.body.Organizer)},{'_id':1});
-		query.exec(function(err,clubcom){
-			if(err)
-				return console.log(err);
-		
-			Event.Organizer=clubcom._id;
-			
-			Event.save()
-			.then(() => res.json('Event updated!'))
-			.catch(err => res.status(400).json('Error: ' + err));
-		});      
+
+
+//change password: provide old passwordas well with new password
+router.route('/changepassword/:id').post((req, res) => {
+  User.findById(req.params.id)
+    .then(User => {
+		if(!bcrypt.compareSync(req.body.password, user.password)){
+			return res.status(400).json('Message: The password is invalid');
+		}
+		User.Password = Bcrypt.hashSync(req.body.password, 10);
+		 	  
+      User.save()
+        .then(() => res.json('User updated!'))
+        .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json('Error: ' + err));
 });

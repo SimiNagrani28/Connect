@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
-  EventNum: { type: Schema.Types.ObjectId, ref: 'Event'},
-  Num: { type: Number, required: true },
+  Event: { type: Schema.Types.ObjectId, ref: 'Event'},
   Description: { type: String, required: true },
   User:{type: Schema.Types.ObjectId, ref: 'User'}
 }, {
