@@ -42,10 +42,8 @@ router.route('/login').post( async (req,res) => {
 	await ClubCom.findOne({UserName: req.body.UserName})
 	.then(ClubCom => {
 		if(ClubCom == null){
-			console.log('inside user');
 				User.findOne({UserName: req.body.UserName})
 				.then(user => {
-					console.log(user);
 					if(user==null){
 						return res.status(400).json('Username does not exist');
 					}
