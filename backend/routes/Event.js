@@ -9,9 +9,9 @@ router.route('/').get((req, res) => {
 });
 
 router.route('/filterBy/:Organizer').get((req,res) => {
-  ClubCom.findOne({UserName:req.params.Organizer},{'_id':1})
+  ClubCom.findOne({username:req.params.Organizer},{'_id':1})
   .then(clubcom => {
-    Event.find({Organizer : clubcom._id})
+    Event.find({Organizer : clubcom._id,Approved:true})
     .then(Event => res.json(Event))
     .catch(err => res.status(400).json('Error: '+ err))
   })
@@ -30,14 +30,15 @@ router.route('/add').post((req, res) => {
   const Name = req.body.Name;
   let Organizer;
   const Contact = req.body.Contact;
-  const Date_time = req.body.Date_time;
+  const Date = req.body.Date;
+  const Time = req.body.Time;
   const Venue = req.body.Venue;
   const Duration = req.body.Duration;
   const Description = req.body.Description;
   const NoOfAttendees = 0;
-  const Approved = req.body.Approved;
+  const Approved = false;
   
-    var query = ClubCom.findOne({UserName: String(req.body.Organizer)},{'_id':1});
+    var query = ClubCom.findOne({username: String(req.body.Organizer)},{'_id':1});
   query.exec(function(err,clubcom){
 	  if(err)
 		  return console.log(err);
@@ -49,7 +50,8 @@ router.route('/add').post((req, res) => {
 	  Name,  
 	  Organizer,
 	  Contact, 
-      Date_time, 
+      Date,
+      Time, 
 	  Venue, 
 	  Duration, 
       Description, 
@@ -108,7 +110,7 @@ router.route('/update/:id').post((req, res) => {
 	//	Event.NoOfAttendees = Number(req.body.NoOfAttendees);
 		Event.Approved = false;
       
-		var query = ClubCom.findOne({UserName: String(req.body.Organizer)},{'_id':1});
+		var query = ClubCom.findOne({username: String(req.body.Organizer)},{'_id':1});
 		query.exec(function(err,clubcom){
 			if(err)
 				return console.log(err);
@@ -122,5 +124,15 @@ router.route('/update/:id').post((req, res) => {
     })
     .catch(err => res.status(400).json('Error: ' + err));
 });
+
+router.route("/approve/:id").post((req,res) => {
+  Event.findById(req.params.id)
+  .then(event => {
+    event.Approved = true
+    event.save()
+    .then(() => res.json("Event approved!"))
+    .catch(err => res.status(400).json("Error: "+ err))
+  })
+})
 
 module.exports = router;
