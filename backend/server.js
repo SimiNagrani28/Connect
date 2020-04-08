@@ -1,8 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const session = require('express-session')
 //const bcrypt = require('bcryptjs');
 //let User = require('../backend/models/User.model')
+const MongoStore = require('connect-mongo')(session)
+
 require('dotenv').config();
 
 const app = express();
@@ -14,8 +17,18 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-app.use(require('express-session')({
+
+const uri = process.env.ATLAS_URI;
+mongoose.connect(uri, {dbName: 'test' , useNewUrlParser: true, useCreateIndex: true }
+);
+const connection = mongoose.connection;
+connection.once('open', () => {
+  console.log(`MongoDB database connection established successfully`);
+})
+
+app.use(session({
   secret: process.env.SESSION_SECRET,
+  store: new MongoStore({mongooseConnection: connection}),
   resave: false,
   saveUninitialized: false
 }))
@@ -23,13 +36,6 @@ app.use(passport.initialize())
 app.use(passport.session())
 setupPassport(passport);
 
-const uri = process.env.ATLAS_URI;
-mongoose.connect(uri, {dbName: 'campusconnect' , useNewUrlParser: true, useCreateIndex: true }
-);
-const connection = mongoose.connection;
-connection.once('open', () => {
-  console.log(`MongoDB database connection established successfully`);
-})
 
 const eventRouter = require('./routes/Event');
 const ClubComRouter = require('./routes/ClubCom');
