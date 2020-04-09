@@ -26,8 +26,6 @@ router.route('/add').post((req, res) => {
 	
 });
 
-
-
 router.route('/:id').get((req, res) => {
   News.findById(req.params.id)
     .then(News => res.json(News))

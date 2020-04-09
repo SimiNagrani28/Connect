@@ -45,6 +45,17 @@ router.route('/register').post(  (req, res) => {
 	})		
 });
 
+
+router.route('/isLoggedIn').get((req, res, next) => {
+	//console.log('===== user!!======')
+//	console.log(req.user)
+	if (req.user) {
+			res.json({ user: req.user })
+	} else {
+			res.json({ user: null })
+	}
+})
+
 /* 
 router.route('/login').post(async (req, res) => {
 	await ClubCom.findOne({ username: req.body.username })
@@ -99,11 +110,18 @@ router.route('/login').post(async (req, res, next) => {
 	})(req,res,next);
 });
 
-router.route('/logout').get( (req,res) => {
-	req.logOut();
-	req.session.destroy();
-	res.json('Message: Logged Out')
+router.route('/logout').post( (req,res) => {
+	if(req.user){
+		req.logOut();
+		req.session.destroy();
+		res.json('Message: Logged Out')
+	}
+	else{
+		res.json('No user to log out.')
+	}
+
 })
+
 
 router.route('/:id').get( async (req, res) => {
   await User.findById(req.params.id)

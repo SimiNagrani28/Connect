@@ -48,23 +48,18 @@ module.exports = passport => {
                         .then(user => {
                             if (user == null) {
                                 err = 'User not found!';
-                                return null;
+                                done(err,null);
                             }
                             else {
-                                return user;
+                               // console.log(user)
+                                done(err,user);
                             }
-                        })
-                        .then(user => {
-                            done(err, user);
-                        })
+                        })                        
                         .catch(err => console.log('Passport Error: ' + err))
                 }
                 else {
-                    return clubcom;
+                    done (err,clubcom);
                 }
-            })
-            .then(clubcom => {
-                done(null,clubcom);
             })
             .catch(err => console.log('Passport Error: ' + err))
     })
